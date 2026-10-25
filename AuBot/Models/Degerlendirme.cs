@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace YemekBot.Models;
+namespace AuBot.Models;
 
 public class Degerlendirme
 {
@@ -24,3 +24,4 @@ public class Degerlendirme
 
     public bool Onaylandi { get; set; } = true;
 }
+

@@ -1,4 +1,4 @@
-namespace YemekBot.Models;
+﻿namespace AuBot.Models;
 
 public class MenuYemek
 {
@@ -10,3 +10,4 @@ public class MenuYemek
 
     public int Sira { get; set; }
 }
+

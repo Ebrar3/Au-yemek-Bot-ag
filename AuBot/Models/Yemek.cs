@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace YemekBot.Models;
+namespace AuBot.Models;
 
 public class Yemek
 {
@@ -22,3 +22,4 @@ public class Yemek
     public ICollection<MenuYemek> MenuYemekleri { get; set; } = new List<MenuYemek>();
     public ICollection<Degerlendirme> Degerlendirmeler { get; set; } = new List<Degerlendirme>();
 }
+

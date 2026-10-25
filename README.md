@@ -1,4 +1,4 @@
-# AÜ Yemekhane Asistanı (Aü Bot)
+﻿# AÜ Yemekhane Asistanı (Aü Bot)
 
 **BLM4581 Ağ Tabanlı Teknolojiler ve Uygulamaları – Dönem Projesi (2026–2027 Güz)**
 
@@ -38,7 +38,7 @@ Sohbet ekranı açıldığında kullanıcı metin yazmak zorunda kalmadan tıkla
 ### 1. Depoyu Klonlayın
 ```bash
 git clone https://github.com/Ebrar3/Au-yemek-Bot-ag.git
-cd Au-yemek-Bot-ag/YemekBot
+cd Au-yemek-Bot-ag/AuBot
 ```
 
 ### 2. Gizli Bilgileri (User Secrets) Tanımlayın
@@ -59,3 +59,4 @@ dotnet ef database update
 dotnet run
 ```
 Tarayıcıdan `https://localhost:5001` (veya konsolda belirtilen `http://localhost:5xxx`) adresine gidin.
+

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace YemekBot.Pages;
+namespace AuBot.Pages;
 
 public class PrivacyModel : PageModel
 {
@@ -16,4 +16,5 @@ public class PrivacyModel : PageModel
     {
     }
 }
+
 

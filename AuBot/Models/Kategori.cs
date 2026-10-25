@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace YemekBot.Models;
+namespace AuBot.Models;
 
 public class Kategori
 {
@@ -17,3 +17,4 @@ public class Kategori
 
     public ICollection<Yemek> Yemekler { get; set; } = new List<Yemek>();
 }
+
