@@ -1,4 +1,4 @@
-# AÜ Yemekhane Asistanı (YemekBot)
+# AÜ Yemekhane Asistanı (Aü Bot)
 
 **BLM4581 Ağ Tabanlı Teknolojiler ve Uygulamaları – Dönem Projesi (2026–2027 Güz)**
 
