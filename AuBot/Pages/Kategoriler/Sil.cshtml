@@ -1,0 +1,22 @@
+@page "{id:int}"
+@model AuBot.Pages.Kategoriler.SilModel
+@{
+    ViewData["Title"] = "Kategori Sil";
+}
+
+<h1 class="h3 mb-3">Kategori Sil</h1>
+
+<div class="alert alert-warning">
+    <strong>@Model.SeciliKategori.Ad</strong> kategorisi silinecek. Emin misiniz?
+    @if (Model.SeciliKategori.Yemekler.Any())
+    {
+        <div class="mt-2 text-danger fw-semibold">
+            Uyarı: Bu kategoriye bağlı @Model.SeciliKategori.Yemekler.Count adet yemek bulunduğu için silinemez. Önce bağlı yemeklerin kategorisini değiştiriniz.
+        </div>
+    }
+</div>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger" @(Model.SeciliKategori.Yemekler.Any() ? "disabled" : "")>Evet, Sil</button>
+    <a asp-page="Index" class="btn btn-secondary">Vazgeç</a>
+</form>

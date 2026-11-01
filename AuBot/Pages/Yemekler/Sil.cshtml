@@ -1,0 +1,16 @@
+@page "{id:int}"
+@model AuBot.Pages.Yemekler.SilModel
+@{
+    ViewData["Title"] = "Yemek Sil";
+}
+
+<h1 class="h3 mb-3">Yemek Sil</h1>
+
+<div class="alert alert-warning">
+    <strong>@Model.SeciliYemek.Ad</strong> (@Model.SeciliYemek.Kategori?.Ad) yemeği silinecek. Emin misiniz?
+</div>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+    <a asp-page="Index" class="btn btn-secondary">Vazgeç</a>
+</form>

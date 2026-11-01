@@ -1,0 +1,28 @@
+@page "{id:int}"
+@model AuBot.Pages.Yemekler.DetayModel
+@{
+    ViewData["Title"] = "Yemek Detayı";
+}
+
+<h1 class="h3 mb-3">@Model.SeciliYemek.Ad</h1>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Yemek Adı</dt>
+            <dd class="col-sm-9">@Model.SeciliYemek.Ad</dd>
+
+            <dt class="col-sm-3">Arama Adı</dt>
+            <dd class="col-sm-9"><code>@Model.SeciliYemek.AramaAdi</code></dd>
+
+            <dt class="col-sm-3">Kategori</dt>
+            <dd class="col-sm-9">@Model.SeciliYemek.Kategori?.Ad</dd>
+
+            <dt class="col-sm-3">Kalori</dt>
+            <dd class="col-sm-9">@(Model.SeciliYemek.Kalori.HasValue ? $"{Model.SeciliYemek.Kalori} kkal" : "Belirtilmemiş")</dd>
+        </dl>
+    </div>
+</div>
+
+<a asp-page="Duzenle" asp-route-id="@Model.SeciliYemek.Id" class="btn btn-primary">Düzenle</a>
+<a asp-page="Index" class="btn btn-secondary">Listeye Dön</a>

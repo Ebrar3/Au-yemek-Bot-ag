@@ -1,0 +1,44 @@
+@page "{id:int}"
+@model AuBot.Pages.Kategoriler.DetayModel
+@{
+    ViewData["Title"] = "Kategori Detayı";
+}
+
+<h1 class="h3 mb-3">@Model.SeciliKategori.Ad</h1>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Kategori Adı</dt>
+            <dd class="col-sm-9">@Model.SeciliKategori.Ad</dd>
+
+            <dt class="col-sm-3">Menü Sütun Sırası</dt>
+            <dd class="col-sm-9">@Model.SeciliKategori.Sira</dd>
+
+            <dt class="col-sm-3">Yemek Sayısı</dt>
+            <dd class="col-sm-9">@Model.SeciliKategori.Yemekler.Count</dd>
+        </dl>
+    </div>
+</div>
+
+<h2 class="h5 mb-3">Bu Kategorideki Yemekler</h2>
+
+@if (Model.SeciliKategori.Yemekler.Any())
+{
+    <ul class="list-group mb-3">
+        @foreach (var yemek in Model.SeciliKategori.Yemekler.OrderBy(y => y.Ad))
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a asp-page="/Yemekler/Detay" asp-route-id="@yemek.Id" class="text-decoration-none">@yemek.Ad</a>
+                <span class="badge bg-light text-dark border">@(yemek.Kalori.HasValue ? $"{yemek.Kalori} kkal" : "Kalori belirtilmemiş")</span>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p class="text-muted">Bu kategoride henüz kayıtlı yemek bulunmuyor.</p>
+}
+
+<a asp-page="Duzenle" asp-route-id="@Model.SeciliKategori.Id" class="btn btn-primary">Düzenle</a>
+<a asp-page="Index" class="btn btn-secondary">Listeye Dön</a>

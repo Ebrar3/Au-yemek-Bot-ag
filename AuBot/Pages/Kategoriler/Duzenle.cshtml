@@ -1,0 +1,38 @@
+@page "{id:int}"
+@model AuBot.Pages.Kategoriler.DuzenleModel
+@{
+    ViewData["Title"] = "Kategori Düzenle";
+}
+
+<h1 class="h3 mb-3">Kategori Düzenle</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="DuzenlenenKategori.Ad" class="form-label"></label>
+                        <input asp-for="DuzenlenenKategori.Ad" class="form-control" />
+                        <span asp-validation-for="DuzenlenenKategori.Ad" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DuzenlenenKategori.Sira" class="form-label"></label>
+                        <input asp-for="DuzenlenenKategori.Sira" class="form-control" type="number" min="1" max="10" />
+                        <span asp-validation-for="DuzenlenenKategori.Sira" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <a asp-page="Index" class="btn btn-secondary">Vazgeç</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
