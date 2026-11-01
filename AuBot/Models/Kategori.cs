@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AuBot.Models;
 
+/// <summary>
+/// Yemekhane menüsündeki yemek kategorilerini (1: Çorba, 2: Ana Yemek, 3: Yardımcı Yemek, 4: Tatlı/Salata/İçecek) temsil eder.
+/// </summary>
 public class Kategori
 {
     public int Id { get; set; }

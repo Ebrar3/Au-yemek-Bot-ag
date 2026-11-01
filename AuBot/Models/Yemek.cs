@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AuBot.Models;
 
+/// <summary>
+/// Yemekhane menülerinde yer alan tekil yemek kaydını, kategorisini ve kalori değerini temsil eder.
+/// </summary>
 public class Yemek
 {
     public int Id { get; set; }
@@ -11,6 +14,9 @@ public class Yemek
     [Display(Name = "Yemek Adı")]
     public string Ad { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Excel içe aktarma ve arama işlemlerinde eşleştirme için kullanılan büyük harfli ad.
+    /// </summary>
     [StringLength(150)]
     [Display(Name = "Arama Adı (Büyük Harf)")]
     public string AramaAdi { get; set; } = string.Empty;

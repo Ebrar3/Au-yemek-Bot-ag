@@ -3,6 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuBot.Data;
 
+/// <summary>
+/// AÜ Yemekhane Asistanı (Aü Bot) Entity Framework Core veritabanı bağlamı.
+/// Tablo ilişkilerini ve başlangıç (seed) kategori/yemek verilerini yapılandırır.
+/// </summary>
 public class AuBotDbContext : DbContext
 {
     public AuBotDbContext(DbContextOptions<AuBotDbContext> options)
@@ -20,7 +24,7 @@ public class AuBotDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Menü - Yemek çoka-çok ara tablo birleşik anahtarı
+        // Menü - Yemek çoka-çok (N-N) ara tablo birleşik birincil anahtarı
         modelBuilder.Entity<MenuYemek>()
             .HasKey(my => new { my.MenuId, my.YemekId });
 
@@ -38,14 +42,24 @@ public class AuBotDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
 
         // Başlangıç (Seed) Kategorileri (Excel menüsündeki 4 sütun sırasına uygun)
+        SeedKategoriler(modelBuilder);
+
+        // Başlangıç (Seed) Örnek Yemekler (Ankara Üniversitesi Ekim 2026 menüsünden)
+        SeedYemekler(modelBuilder);
+    }
+
+    private static void SeedKategoriler(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<Kategori>().HasData(
             new Kategori { Id = 1, Ad = "Çorba", Sira = 1 },
             new Kategori { Id = 2, Ad = "Ana Yemek", Sira = 2 },
             new Kategori { Id = 3, Ad = "Yardımcı Yemek", Sira = 3 },
             new Kategori { Id = 4, Ad = "Tatlı / Salata / İçecek", Sira = 4 }
         );
+    }
 
-        // Örnek Yemekler (Ankara Üniversitesi Ekim 2026 menüsünden)
+    private static void SeedYemekler(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<Yemek>().HasData(
             new Yemek { Id = 1, Ad = "Mahluta Çorba", AramaAdi = "MAHLUTA ÇORBA", KategoriId = 1, Kalori = 204 },
             new Yemek { Id = 2, Ad = "İzmir Köfte", AramaAdi = "İZMİR KÖFTE", KategoriId = 2, Kalori = 712 },
