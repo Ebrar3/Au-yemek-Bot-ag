@@ -1,0 +1,177 @@
+@page
+@using AuBot.Models
+@model AuBot.Pages.Takvim.IndexModel
+@{
+    ViewData["Title"] = $"Aylık Yemek Takvimi – {Model.AyBasligi}";
+    var bugun = DateOnly.FromDateTime(DateTime.Today);
+    string[] gunAdlari = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+        <h1 class="h3 mb-0 text-capitalize">📅 @Model.AyBasligi Yemek Takvimi</h1>
+        <small class="text-muted">Günlere tıklayarak o günün detaylı öğle ve akşam menüsünü görüntüleyebilirsiniz.</small>
+    </div>
+
+    <div class="btn-group">
+        <a asp-page="/Takvim/Index"
+           asp-route-Yil="@Model.OncekiYil"
+           asp-route-Ay="@Model.OncekiAy"
+           asp-route-OgunFiltresi="@Model.OgunFiltresi"
+           asp-route-YemekArama="@Model.YemekArama"
+           class="btn btn-outline-primary">
+            ◀ Önceki Ay
+        </a>
+        <a asp-page="/Takvim/Index"
+           asp-route-Yil="@bugun.Year"
+           asp-route-Ay="@bugun.Month"
+           class="btn btn-outline-secondary">
+            Bu Ay
+        </a>
+        <a asp-page="/Takvim/Index"
+           asp-route-Yil="@Model.SonrakiYil"
+           asp-route-Ay="@Model.SonrakiAy"
+           asp-route-OgunFiltresi="@Model.OgunFiltresi"
+           asp-route-YemekArama="@Model.YemekArama"
+           class="btn btn-outline-primary">
+            Sonraki Ay ▶
+        </a>
+    </div>
+</div>
+
+<!-- Filtreleme Çubuğu -->
+<form method="get" class="card shadow-sm mb-4">
+    <div class="card-body row g-2 align-items-end">
+        <div class="col-md-2">
+            <label class="form-label small text-muted mb-1">Yıl</label>
+            <input type="number" name="Yil" value="@Model.SeciliYil" min="2024" max="2030" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-muted mb-1">Ay</label>
+            <select name="Ay" class="form-select">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    var ayAdi = new DateTime(2026, m, 1).ToString("MMMM", new System.Globalization.CultureInfo("tr-TR"));
+                    <option value="@m" selected="@(m == Model.SeciliAy)">@ayAdi</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted mb-1">Öğün Türü</label>
+            <select asp-for="OgunFiltresi" class="form-select">
+                <option value="">Tümü (Öğle + Akşam)</option>
+                <option value="@OgunTuru.Ogle">☀️ Sadece Öğle Yemeği</option>
+                <option value="@OgunTuru.Aksam">🌙 Sadece Akşam Yemeği</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted mb-1">Yemek Ara</label>
+            <input asp-for="YemekArama" class="form-control" placeholder="Örn: Köfte, Mercimek..." />
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-primary w-100">Uygula</button>
+            <a asp-page="/Takvim/Index"
+               asp-route-Yil="@Model.SeciliYil"
+               asp-route-Ay="@Model.SeciliAy"
+               class="btn btn-outline-secondary">Sıfırla</a>
+        </div>
+    </div>
+</form>
+
+<!-- Aylık Takvim Tablosu -->
+<div class="table-responsive shadow-sm rounded border bg-white">
+    <table class="table table-bordered align-top mb-0" style="table-layout: fixed; min-width: 900px;">
+        <thead class="table-light text-center">
+            <tr>
+                @foreach (var gunAdi in gunAdlari)
+                {
+                    <th class="py-2">@gunAdi</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int hucreSayaci = 0;
+                int toplamHucre = Model.BaslangicBosGunSayisi + Model.AyinGunSayisi;
+                int satirSayisi = (int)Math.Ceiling(toplamHucre / 7.0);
+            }
+
+            @for (int satir = 0; satir < satirSayisi; satir++)
+            {
+                <tr>
+                    @for (int sutun = 0; sutun < 7; sutun++)
+                    {
+                        int gunNo = hucreSayaci - Model.BaslangicBosGunSayisi + 1;
+                        hucreSayaci++;
+
+                        if (gunNo < 1 || gunNo > Model.AyinGunSayisi)
+                        {
+                            <td class="bg-light text-muted" style="height: 145px;"></td>
+                        }
+                        else
+                        {
+                            var tarih = new DateOnly(Model.SeciliYil, Model.SeciliAy, gunNo);
+                            var bugunMu = tarih == bugun;
+                            Model.GunlukMenuler.TryGetValue(tarih, out var gunMenuleri);
+
+                            <td class="@(bugunMu ? "border-primary bg-primary bg-opacity-10" : "")" style="height: 145px;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <a asp-page="/Index"
+                                       asp-route-SeciliTarih="@tarih.ToString("yyyy-MM-dd")"
+                                       class="fw-bold text-decoration-none @(bugunMu ? "text-primary" : "text-dark")">
+                                        @gunNo
+                                    </a>
+                                    @if (bugunMu)
+                                    {
+                                        <span class="badge bg-primary">Bugün</span>
+                                    }
+                                </div>
+
+                                @if (gunMenuleri == null || !gunMenuleri.Any())
+                                {
+                                    <div class="small text-muted fst-italic mt-2">Menü yok</div>
+                                }
+                                else
+                                {
+                                    @foreach (var menu in gunMenuleri)
+                                    {
+                                        <div class="mb-2 p-1 rounded border bg-white small">
+                                            <div class="d-flex justify-content-between align-items-center fw-semibold">
+                                                <a asp-page="/Index"
+                                                   asp-route-SeciliTarih="@tarih.ToString("yyyy-MM-dd")"
+                                                   asp-route-AktifOgun="@menu.Ogun"
+                                                   class="text-decoration-none">
+                                                    @(menu.Ogun == OgunTuru.Ogle ? "☀️ Öğle" : "🌙 Akşam")
+                                                </a>
+                                                @if (menu.ToplamKalori != null)
+                                                {
+                                                    <span class="badge bg-light text-dark border">@menu.ToplamKalori kkal</span>
+                                                }
+                                            </div>
+
+                                            @if (menu.TatilMi)
+                                            {
+                                                <div class="text-danger small mt-1">
+                                                    @(string.IsNullOrWhiteSpace(menu.Aciklama) ? "Resmi Tatil" : menu.Aciklama)
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <ul class="list-unstyled mb-0 mt-1" style="font-size: 0.78rem;">
+                                                    @foreach (var my in menu.MenuYemekleri.OrderBy(x => x.Sira))
+                                                    {
+                                                        <li class="text-truncate" title="@my.Yemek?.Ad">• @my.Yemek?.Ad</li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </td>
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
