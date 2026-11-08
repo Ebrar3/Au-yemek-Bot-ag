@@ -1,0 +1,194 @@
+@page
+@using AuBot.Models
+@model AuBot.Pages.Menuler.EkleModel
+@{
+    ViewData["Title"] = "Yeni Menü Ekle";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-0">➕ Yeni Menü Ekle</h1>
+        <small class="text-muted">Tarih ve öğün seçip, her kategori için sitedeki yemeklerden birini seçin.</small>
+    </div>
+    <a asp-page="/Menuler/Index"
+       asp-route-Yil="@Model.Tarih.Year"
+       asp-route-Ay="@Model.Tarih.Month"
+       class="btn btn-outline-secondary">◀ Geri</a>
+</div>
+
+@if (!ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach (var hata in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@hata.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<form method="post" id="menuForm">
+    @Html.AntiForgeryToken()
+
+    <!-- Üst Bilgi Kartı -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white fw-semibold">📅 Menü Bilgileri</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Tarih <span class="text-danger">*</span></label>
+                    <input type="date" name="Tarih" value="@Model.Tarih.ToString("yyyy-MM-dd")" class="form-control" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Öğün Türü <span class="text-danger">*</span></label>
+                    <select name="Ogun" class="form-select" id="ogunSelect">
+                        <option value="@OgunTuru.Ogle" selected="@(Model.Ogun == OgunTuru.Ogle)">☀️ Öğle Yemeği</option>
+                        <option value="@OgunTuru.Aksam" selected="@(Model.Ogun == OgunTuru.Aksam)">🌙 Akşam Yemeği</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check">
+                        <input type="checkbox" name="TatilMi" value="true" id="tatilMi"
+                               class="form-check-input" @(Model.TatilMi ? "checked" : "")
+                               onchange="toggleTatil(this.checked)" />
+                        <input type="hidden" name="TatilMi" value="false" />
+                        <label class="form-check-label fw-semibold text-danger" for="tatilMi">
+                            🚫 Resmi Tatil / Hizmet Dışı
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12" id="aciklamaAlani">
+                    <label class="form-label fw-semibold">Açıklama <span class="text-muted small">(isteğe bağlı)</span></label>
+                    <input type="text" name="Aciklama" value="@Model.Aciklama" class="form-control"
+                           placeholder="Örn: Resmi Tatil, Bayram vs." maxlength="200" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yemek Seçim Tablosu -->
+    <div id="yemekSecimAlani" @(Model.TatilMi ? "style=display:none;" : "")>
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">🍽️ Yemek Seçimi</span>
+                <span class="badge bg-white text-primary fs-6" id="toplamKaloriGostergesi">
+                    Toplam: <span id="toplamKalori">0</span> kkal
+                </span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 160px;">Kategori</th>
+                                <th>Yemek Seçin</th>
+                                <th style="width: 120px;" class="text-center">Kalori</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var kat in Model.Kategoriler)
+                            {
+                                var yemekler = Model.KategoriYemekleri.TryGetValue(kat.Id, out var liste) ? liste : new();
+                                var secili = Model.SeciliYemekler.TryGetValue(kat.Id, out var sid) ? sid : null;
+
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary fs-6 w-100 text-start">@kat.Ad</span>
+                                    </td>
+                                    <td>
+                                        <select name="SeciliYemekler[@kat.Id]"
+                                                class="form-select yemek-select"
+                                                data-kategori-id="@kat.Id"
+                                                onchange="yemekDegisti(this)"
+                                                id="select_kat_@kat.Id">
+                                            <option value="">— Bu kategoriden yemek seçin —</option>
+                                            @foreach (var yemek in yemekler)
+                                            {
+                                                <option value="@yemek.Id"
+                                                        data-kalori="@(yemek.Kalori ?? 0)"
+                                                        selected="@(secili == yemek.Id)">
+                                                    @yemek.Ad @(yemek.Kalori != null ? $"({yemek.Kalori} kkal)" : "(kalori yok)")
+                                                </option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border fs-6" id="kalori_kat_@kat.Id">—</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="2" class="text-end fw-bold">Toplam Kalori:</td>
+                                <td class="text-center">
+                                    <span class="badge bg-success text-white fs-6" id="toplamKaloriFooter">0 kkal</span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kaydet Butonları -->
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success btn-lg">
+            💾 Menüyü Kaydet
+        </button>
+        <a asp-page="/Menuler/Index"
+           asp-route-Yil="@Model.Tarih.Year"
+           asp-route-Ay="@Model.Tarih.Month"
+           class="btn btn-outline-secondary btn-lg">İptal</a>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+    // Kalori hesaplama
+    function yemekDegisti(select) {
+        var katId = select.dataset.kategoriId;
+        var selectedOpt = select.options[select.selectedIndex];
+        var kalori = selectedOpt ? parseInt(selectedOpt.dataset.kalori || 0) : 0;
+
+        var kaloriSpan = document.getElementById('kalori_kat_' + katId);
+        if (select.value === '') {
+            kaloriSpan.textContent = '—';
+            kaloriSpan.className = 'badge bg-light text-dark border fs-6';
+        } else {
+            kaloriSpan.textContent = kalori > 0 ? kalori + ' kkal' : '—';
+            kaloriSpan.className = 'badge bg-info text-dark fs-6';
+        }
+
+        toplamHesapla();
+    }
+
+    function toplamHesapla() {
+        var selects = document.querySelectorAll('.yemek-select');
+        var toplam = 0;
+        selects.forEach(function(sel) {
+            if (sel.value) {
+                var opt = sel.options[sel.selectedIndex];
+                toplam += parseInt(opt.dataset.kalori || 0);
+            }
+        });
+
+        document.getElementById('toplamKalori').textContent = toplam;
+        document.getElementById('toplamKaloriFooter').textContent = toplam + ' kkal';
+    }
+
+    function toggleTatil(tatilMi) {
+        var alan = document.getElementById('yemekSecimAlani');
+        alan.style.display = tatilMi ? 'none' : '';
+    }
+
+    // Sayfa yüklenince mevcut seçimlere göre kalorileri hesapla
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.yemek-select').forEach(function(sel) {
+            yemekDegisti(sel);
+        });
+    });
+</script>
+}
