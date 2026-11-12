@@ -19,6 +19,7 @@ public class AuBotDbContext : DbContext
     public DbSet<Menu> Menuler { get; set; } = default!;
     public DbSet<MenuYemek> MenuYemekleri { get; set; } = default!;
     public DbSet<Degerlendirme> Degerlendirmeler { get; set; } = default!;
+    public DbSet<MenuYukleme> MenuYuklemeleri { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,6 +28,13 @@ public class AuBotDbContext : DbContext
         // Menü - Yemek çoka-çok (N-N) ara tablo birleşik birincil anahtarı
         modelBuilder.Entity<MenuYemek>()
             .HasKey(my => new { my.MenuId, my.YemekId });
+
+        // Menü Yükleme (1-N) Menü ilişkisi: yükleme kaydı silinirse menüler silinmesin
+        modelBuilder.Entity<Menu>()
+            .HasOne(m => m.MenuYukleme)
+            .WithMany(my => my.Menuler)
+            .HasForeignKey(m => m.MenuYuklemeId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         // Değerlendirme ilişkilerinde çoklu cascade delete çakışmasını önle
         modelBuilder.Entity<Degerlendirme>()

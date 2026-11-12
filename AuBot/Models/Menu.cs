@@ -39,6 +39,11 @@ public class Menu
     [Display(Name = "Açıklama")]
     public string? Aciklama { get; set; }
 
+    [Display(Name = "Menü Yükleme Kaydı")]
+    public int? MenuYuklemeId { get; set; }
+
+    public MenuYukleme? MenuYukleme { get; set; }
+
     public ICollection<MenuYemek> MenuYemekleri { get; set; } = new List<MenuYemek>();
     public ICollection<Degerlendirme> Degerlendirmeler { get; set; } = new List<Degerlendirme>();
 }

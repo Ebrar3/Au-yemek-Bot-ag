@@ -12,6 +12,7 @@ public class ExcelFormatHatasi(string mesaj) : Exception(mesaj);
 
 /// <summary>Excel menü yükleme işleminin özet sonucu ve uyarı listesi.</summary>
 public record ExcelYuklemeSonuc(
+    int MenuYuklemeId,
     string DosyaAdi,
     OgunTuru Ogun,
     int Yil,
@@ -58,7 +59,12 @@ public partial class ExcelMenuServisi
     /// <summary>Excel'den okunan ham satır.</summary>
     private sealed record ExcelSatiri(int SatirNo, DateOnly Tarih, string[] YemekHucreleri, string ToplamHucresi);
 
-    public async Task<ExcelYuklemeSonuc> YukleAsync(Stream akis, string dosyaAdi, OgunTuru? ogun, CancellationToken ct = default)
+    public async Task<ExcelYuklemeSonuc> YukleAsync(
+        Stream akis,
+        string dosyaAdi,
+        OgunTuru? ogun,
+        string? yukleyenKullaniciId = null,
+        CancellationToken ct = default)
     {
         var uyarilar = new List<string>();
 
@@ -87,8 +93,8 @@ public partial class ExcelMenuServisi
             var (yil, ay) = BaskinAyiBul(satirlar);
             satirlar = TarihleriDuzelt(satirlar, yil, ay, uyarilar);
 
-            // 3) Veritabanına aktar
-            return await VeritabaninaAktarAsync(satirlar, dosyaAdi, gercekOgun, yil, ay, uyarilar, ct);
+            // 3) Veritabanına aktar ve MenuYuklemeleri kaydı oluştur
+            return await VeritabaninaAktarAsync(satirlar, dosyaAdi, gercekOgun, yil, ay, yukleyenKullaniciId, uyarilar, ct);
         }
     }
 
@@ -196,7 +202,7 @@ public partial class ExcelMenuServisi
 
     private async Task<ExcelYuklemeSonuc> VeritabaninaAktarAsync(
         List<ExcelSatiri> satirlar, string dosyaAdi, OgunTuru ogun, int yil, int ay,
-        List<string> uyarilar, CancellationToken ct)
+        string? yukleyenKullaniciId, List<string> uyarilar, CancellationToken ct)
     {
         // Kategoriler Excel sütun sırasına göre: B=1 Çorba, C=2 Ana Yemek, D=3 Yardımcı, E=4 Tatlı/Salata
         var kategoriler = new Dictionary<int, Kategori>();
@@ -228,6 +234,17 @@ public partial class ExcelMenuServisi
             .Include(m => m.MenuYemekleri)
             .Where(m => m.Ogun == ogun && m.Tarih >= ilkGun && m.Tarih <= sonGun)
             .ToDictionaryAsync(m => m.Tarih, ct);
+
+        var yuklemeKaydi = new MenuYukleme
+        {
+            DosyaAdi = dosyaAdi,
+            Yil = yil,
+            Ay = ay,
+            Ogun = ogun,
+            YukleyenKullaniciId = yukleyenKullaniciId,
+            YuklemeTarihi = DateTime.Now
+        };
+        _db.MenuYuklemeleri.Add(yuklemeKaydi);
 
         int eklenen = 0, guncellenen = 0, tatil = 0, yeniYemek = 0;
 
@@ -285,8 +302,15 @@ public partial class ExcelMenuServisi
             menu.TatilMi = tatilMi;
             menu.Aciklama = aciklama;
             menu.ToplamKalori = toplamKalori;
+            menu.MenuYukleme = yuklemeKaydi;
             MenuIslemleri.YemekleriEsitle(menu, menuYemekleri);
         }
+
+        yuklemeKaydi.EklenenMenuSayisi = eklenen;
+        yuklemeKaydi.GuncellenenMenuSayisi = guncellenen;
+        yuklemeKaydi.TatilGunSayisi = tatil;
+        yuklemeKaydi.YeniYemekSayisi = yeniYemek;
+        yuklemeKaydi.Uyarilar = uyarilar.Count > 0 ? string.Join("\n", uyarilar) : null;
 
         // Tüm değişiklikler tek seferde (tek transaction) kaydedilir: ya hepsi ya hiçbiri
         await _db.SaveChangesAsync(ct);
@@ -294,7 +318,7 @@ public partial class ExcelMenuServisi
         _logger.LogInformation("Excel aktarıldı: {Dosya} – {Eklenen} eklendi, {Guncellenen} güncellendi, {Uyari} uyarı",
             dosyaAdi, eklenen, guncellenen, uyarilar.Count);
 
-        return new ExcelYuklemeSonuc(dosyaAdi, ogun, yil, ay, eklenen, guncellenen, tatil, yeniYemek, uyarilar);
+        return new ExcelYuklemeSonuc(yuklemeKaydi.Id, dosyaAdi, ogun, yil, ay, eklenen, guncellenen, tatil, yeniYemek, uyarilar);
     }
 
     private static (string Ad, int? Kalori) YemekHucresiniAyristir(string hucre)

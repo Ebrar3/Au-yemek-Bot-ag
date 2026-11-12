@@ -21,7 +21,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AuBotDbContext>();
     db.Database.Migrate();
 
-    if (!await db.Menuler.AnyAsync(m => m.Tarih.Year == 2026 && m.Tarih.Month == 10))
+    if (!await db.MenuYuklemeleri.AnyAsync())
     {
         var excelServisi = scope.ServiceProvider.GetRequiredService<ExcelMenuServisi>();
         var ornekKlasor = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "OrnekMenuler"));
@@ -31,13 +31,13 @@ using (var scope = app.Services.CreateScope())
         if (File.Exists(ogleDosya))
         {
             using var akis = File.OpenRead(ogleDosya);
-            await excelServisi.YukleAsync(akis, Path.GetFileName(ogleDosya), OgunTuru.Ogle);
+            await excelServisi.YukleAsync(akis, Path.GetFileName(ogleDosya), OgunTuru.Ogle, "Sistem (Başlangıç)");
         }
 
         if (File.Exists(aksamDosya))
         {
             using var akis = File.OpenRead(aksamDosya);
-            await excelServisi.YukleAsync(akis, Path.GetFileName(aksamDosya), OgunTuru.Aksam);
+            await excelServisi.YukleAsync(akis, Path.GetFileName(aksamDosya), OgunTuru.Aksam, "Sistem (Başlangıç)");
         }
     }
 }
