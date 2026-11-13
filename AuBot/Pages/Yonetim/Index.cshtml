@@ -1,0 +1,412 @@
+@page
+@using AuBot.Models
+@model AuBot.Pages.Yonetim.IndexModel
+@{
+    ViewData["Title"] = "Yönetici Paneli";
+    var bugunStr = Model.Bugun.ToString("yyyy-MM-dd");
+    var aktifKullanici = User.Identity?.IsAuthenticated == true && !string.IsNullOrWhiteSpace(User.Identity.Name)
+        ? User.Identity.Name
+        : "Yönetici (Demo Modu)";
+}
+
+<!-- Üst Başlık ve Hızlı İşlem Çubuğu -->
+<div class="p-4 mb-4 bg-dark text-white rounded-3 shadow-sm">
+    <div class="row align-items-center g-3">
+        <div class="col-lg-7">
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-warning text-dark">YÖNETİM MERKEZİ</span>
+                <span class="small text-white-50">👤 Aktif Oturum: @aktifKullanici</span>
+            </div>
+            <h1 class="h3 fw-bold mb-1">⚙️ Aü Bot – Yönetici Kontrol Paneli</h1>
+            <p class="small text-white-50 mb-0">
+                Günlük/aylık yemekhane menülerini, Excel aktarımlarını, yemek havuzunu ve kategorileri tek ekrandan yönetin.
+            </p>
+        </div>
+        <div class="col-lg-5 text-lg-end d-flex flex-wrap gap-2 justify-content-lg-end">
+            <a asp-page="/Menuler/ExcelYukle" class="btn btn-warning fw-semibold">
+                📥 Excel Menü Yükle
+            </a>
+            <a asp-page="/Menuler/Ekle" class="btn btn-success fw-semibold">
+                ➕ Yeni Menü Ekle
+            </a>
+            <a asp-page="/Yemekler/Ekle" class="btn btn-outline-light">
+                🍲 Yeni Yemek Ekle
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 1) Özet İstatistik Kartları (KPI) -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-primary shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Toplam Kayıtlı Menü</div>
+                        <div class="display-6 fw-bold text-primary my-1">@Model.ToplamMenuSayisi</div>
+                    </div>
+                    <span class="fs-3">📅</span>
+                </div>
+                <div class="d-flex flex-wrap gap-1 mt-2">
+                    <span class="badge bg-warning text-dark">☀️ @Model.OgleMenuSayisi Öğle</span>
+                    <span class="badge bg-info text-dark">🌙 @Model.AksamMenuSayisi Akşam</span>
+                    <span class="badge bg-success">🥗 @Model.VejetaryenMenuSayisi Vej.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-success shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Yemek Havuzu</div>
+                        <div class="display-6 fw-bold text-success my-1">@Model.ToplamYemekSayisi</div>
+                    </div>
+                    <span class="fs-3">🍲</span>
+                </div>
+                <div class="small text-muted mt-2">
+                    ⚡ <strong>@Model.KaloriliYemekSayisi</strong> yemeğin kalori bilgisi tanımlı
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-info shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Yemek Kategorileri</div>
+                        <div class="display-6 fw-bold text-info my-1">@Model.ToplamKategoriSayisi</div>
+                    </div>
+                    <span class="fs-3">📂</span>
+                </div>
+                <div class="small text-muted mt-2">
+                    Çorba, Ana Yemek, Yardımcı Yemek, Tatlı/Salata
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-warning shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Excel Menü Aktarımı</div>
+                        <div class="display-6 fw-bold text-warning my-1">@Model.ToplamExcelYuklemeSayisi</div>
+                    </div>
+                    <span class="fs-3">📥</span>
+                </div>
+                <div class="small text-muted mt-2">
+                    🛠️ <strong>@Model.ToplamUyariSayisi</strong> satır hatası otomatik düzeltildi
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2) Hızlı Yönetim Modülleri -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <h2 class="h5 fw-bold mb-1">📋 Menü & Takvim Yönetimi</h2>
+                    <p class="small text-muted mb-3">
+                        Aylık takvim üzerinde öğle, akşam ve vejetaryen menüleri görüntüleyin, yeni menü ekleyin veya mevcut menüleri düzenleyin.
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a asp-page="/Menuler/Index" class="btn btn-primary btn-sm w-100">Menü Yönetimi</a>
+                    <a asp-page="/Menuler/ExcelYukle" class="btn btn-outline-primary btn-sm w-100">Excel Yükle</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <h2 class="h5 fw-bold mb-1">🍲 Yemek Havuzu (CRUD)</h2>
+                    <p class="small text-muted mb-3">
+                        Sistemde kayıtlı <strong>@Model.ToplamYemekSayisi</strong> yemeğin adını, kategorisini ve kalori değerlerini yönetin.
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a asp-page="/Yemekler/Index" class="btn btn-success btn-sm w-100">Yemek Listesi</a>
+                    <a asp-page="/Yemekler/Ekle" class="btn btn-outline-success btn-sm w-100">+ Yeni Yemek</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <h2 class="h5 fw-bold mb-1">📂 Kategori Yönetimi</h2>
+                    <p class="small text-muted mb-3">
+                        Excel sütun sırasıyla eşleşen yemek kategorilerini (@string.Join(", ", Model.Kategoriler.Select(k => $"{k.Ad} ({k.YemekSayisi})"))) düzenleyin.
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a asp-page="/Kategoriler/Index" class="btn btn-info text-dark btn-sm w-100">Kategoriler</a>
+                    <a asp-page="/Kategoriler/Ekle" class="btn btn-outline-secondary btn-sm w-100">+ Yeni Kategori</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3) Bugünün Menü Durumu (Öğle / Akşam / Vejetaryen) -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h2 class="h5 mb-0">🍽️ Bugünün Menü Durumu – <span class="text-primary">@Model.BugunFormatli</span></h2>
+        </div>
+        <a asp-page="/Index" asp-route-SeciliTarih="@bugunStr" class="btn btn-sm btn-outline-primary">
+            👁️ Öğrenci Görünümünde Aç
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <!-- Öğle -->
+            <div class="col-lg-4">
+                <div class="border rounded p-3 h-100 bg-warning bg-opacity-10">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold">☀️ Öğle Yemeği</span>
+                        @if (Model.BugunOgle != null)
+                        {
+                            <a asp-page="/Menuler/Duzenle" asp-route-id="@Model.BugunOgle.Id" class="btn btn-sm btn-outline-dark py-0">✏️ Düzenle</a>
+                        }
+                        else
+                        {
+                            <a asp-page="/Menuler/Ekle" asp-route-tarih="@bugunStr" asp-route-ogun="@OgunTuru.Ogle" class="btn btn-sm btn-success py-0">+ Ekle</a>
+                        }
+                    </div>
+                    @if (Model.BugunOgle == null)
+                    {
+                        <div class="small text-muted fst-italic">Bugün için öğle menüsü girilmemiş.</div>
+                    }
+                    else if (Model.BugunOgle.TatilMi)
+                    {
+                        <div class="badge bg-danger">Resmi Tatil: @Model.BugunOgle.Aciklama</div>
+                    }
+                    else
+                    {
+                        <ul class="small mb-2 ps-3">
+                            @foreach (var my in Model.BugunOgle.MenuYemekleri.OrderBy(x => x.Sira))
+                            {
+                                <li>@my.Yemek?.Ad <span class="text-muted">(@(my.Yemek?.Kalori?.ToString() ?? "-") kkal)</span></li>
+                            }
+                        </ul>
+                        @if (Model.BugunOgle.ToplamKalori != null)
+                        {
+                            <span class="badge bg-warning text-dark">Toplam: @Model.BugunOgle.ToplamKalori kkal</span>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Akşam -->
+            <div class="col-lg-4">
+                <div class="border rounded p-3 h-100 bg-info bg-opacity-10">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold">🌙 Akşam Yemeği</span>
+                        @if (Model.BugunAksam != null)
+                        {
+                            <a asp-page="/Menuler/Duzenle" asp-route-id="@Model.BugunAksam.Id" class="btn btn-sm btn-outline-dark py-0">✏️ Düzenle</a>
+                        }
+                        else
+                        {
+                            <a asp-page="/Menuler/Ekle" asp-route-tarih="@bugunStr" asp-route-ogun="@OgunTuru.Aksam" class="btn btn-sm btn-success py-0">+ Ekle</a>
+                        }
+                    </div>
+                    @if (Model.BugunAksam == null)
+                    {
+                        <div class="small text-muted fst-italic">Bugün için akşam menüsü girilmemiş.</div>
+                    }
+                    else if (Model.BugunAksam.TatilMi)
+                    {
+                        <div class="badge bg-danger">Resmi Tatil: @Model.BugunAksam.Aciklama</div>
+                    }
+                    else
+                    {
+                        <ul class="small mb-2 ps-3">
+                            @foreach (var my in Model.BugunAksam.MenuYemekleri.OrderBy(x => x.Sira))
+                            {
+                                <li>@my.Yemek?.Ad <span class="text-muted">(@(my.Yemek?.Kalori?.ToString() ?? "-") kkal)</span></li>
+                            }
+                        </ul>
+                        @if (Model.BugunAksam.ToplamKalori != null)
+                        {
+                            <span class="badge bg-info text-dark">Toplam: @Model.BugunAksam.ToplamKalori kkal</span>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Vejetaryen -->
+            <div class="col-lg-4">
+                <div class="border rounded p-3 h-100 bg-success bg-opacity-10">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold">🥗 Vejetaryen Menü</span>
+                        @if (Model.BugunVejetaryen != null)
+                        {
+                            <a asp-page="/Menuler/Duzenle" asp-route-id="@Model.BugunVejetaryen.Id" class="btn btn-sm btn-outline-dark py-0">✏️ Düzenle</a>
+                        }
+                        else
+                        {
+                            <a asp-page="/Menuler/Ekle" asp-route-tarih="@bugunStr" asp-route-ogun="@OgunTuru.Vejetaryen" class="btn btn-sm btn-success py-0">+ Ekle</a>
+                        }
+                    </div>
+                    @if (Model.BugunVejetaryen == null)
+                    {
+                        <div class="small text-muted fst-italic">Bugün için vejetaryen menü girilmemiş.</div>
+                    }
+                    else if (Model.BugunVejetaryen.TatilMi)
+                    {
+                        <div class="badge bg-danger">Resmi Tatil: @Model.BugunVejetaryen.Aciklama</div>
+                    }
+                    else
+                    {
+                        <ul class="small mb-2 ps-3">
+                            @foreach (var my in Model.BugunVejetaryen.MenuYemekleri.OrderBy(x => x.Sira))
+                            {
+                                <li>@my.Yemek?.Ad <span class="text-muted">(@(my.Yemek?.Kalori?.ToString() ?? "-") kkal)</span></li>
+                            }
+                        </ul>
+                        @if (Model.BugunVejetaryen.ToplamKalori != null)
+                        {
+                            <span class="badge bg-success">Toplam: @Model.BugunVejetaryen.ToplamKalori kkal</span>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4) Aylık Menü Doluluk Özeti ve Son Excel Yüklemeleri -->
+<div class="row g-4">
+    <!-- Aylık Menü Doluluk Özeti -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-light fw-semibold">
+                📊 Aylara Göre Menü Dağılımı
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Dönem</th>
+                                <th class="text-center">☀️ Öğle</th>
+                                <th class="text-center">🌙 Akşam</th>
+                                <th class="text-center">🥗 Vej.</th>
+                                <th class="text-end">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ay in Model.AylikOzetler)
+                            {
+                                <tr>
+                                    <td class="fw-semibold text-capitalize">
+                                        @ay.AyAdi
+                                        @if (ay.TatilSayisi > 0)
+                                        {
+                                            <div class="small text-danger">@ay.TatilSayisi tatil kaydı</div>
+                                        }
+                                    </td>
+                                    <td class="text-center"><span class="badge bg-warning text-dark">@ay.OgleSayisi</span></td>
+                                    <td class="text-center"><span class="badge bg-info text-dark">@ay.AksamSayisi</span></td>
+                                    <td class="text-center"><span class="badge bg-success">@ay.VejetaryenSayisi</span></td>
+                                    <td class="text-end">
+                                        <a asp-page="/Menuler/Index"
+                                           asp-route-Yil="@ay.Yil"
+                                           asp-route-Ay="@ay.Ay"
+                                           class="btn btn-sm btn-outline-primary">Yönet</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Son Excel Menü Yüklemeleri -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">📥 Son Excel Menü Yüklemeleri</span>
+                <a asp-page="/Menuler/ExcelYukle" class="btn btn-sm btn-outline-secondary">Tümünü Gör</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Dosya Adı</th>
+                                <th>Dönem</th>
+                                <th>Öğün</th>
+                                <th class="text-center">Menü</th>
+                                <th>Otomatik Düzeltme</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var yukleme in Model.SonExcelYuklemeleri)
+                            {
+                                var uyariSayisi = string.IsNullOrWhiteSpace(yukleme.Uyarilar)
+                                    ? 0
+                                    : yukleme.Uyarilar.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length;
+
+                                <tr>
+                                    <td class="fw-semibold small">@yukleme.DosyaAdi</td>
+                                    <td class="small text-capitalize">@Model.AyAdiGetir(yukleme.Yil, yukleme.Ay)</td>
+                                    <td>
+                                        @if (yukleme.Ogun == OgunTuru.Ogle)
+                                        {
+                                            <span class="badge bg-warning text-dark">☀️ Öğle</span>
+                                        }
+                                        else if (yukleme.Ogun == OgunTuru.Aksam)
+                                        {
+                                            <span class="badge bg-info text-dark">🌙 Akşam</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">🥗 Vejetaryen</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success">+@yukleme.EklenenMenuSayisi</span>
+                                        @if (yukleme.GuncellenenMenuSayisi > 0)
+                                        {
+                                            <span class="badge bg-primary">↻@yukleme.GuncellenenMenuSayisi</span>
+                                        }
+                                    </td>
+                                    <td class="small">
+                                        @if (uyariSayisi == 0)
+                                        {
+                                            <span class="text-success">Sorunsuz</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-warning-emphasis fw-semibold">⚠️ @uyariSayisi uyarı düzeltildi</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

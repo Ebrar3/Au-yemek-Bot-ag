@@ -10,7 +10,7 @@
         <h1 class="h3 mb-0">✏️ Menü Düzenle</h1>
         <small class="text-muted">
             @Model.Tarih.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("tr-TR")) –
-            @(Model.Ogun == OgunTuru.Ogle ? "☀️ Öğle Yemeği" : "🌙 Akşam Yemeği")
+            @(Model.Ogun == OgunTuru.Ogle ? "☀️ Öğle Yemeği" : Model.Ogun == OgunTuru.Aksam ? "🌙 Akşam Yemeği" : "🥗 Vejetaryen Menü")
         </small>
     </div>
     <a asp-page="/Menuler/Index"
@@ -49,6 +49,7 @@
                     <select name="Ogun" class="form-select">
                         <option value="@OgunTuru.Ogle" selected="@(Model.Ogun == OgunTuru.Ogle)">☀️ Öğle Yemeği</option>
                         <option value="@OgunTuru.Aksam" selected="@(Model.Ogun == OgunTuru.Aksam)">🌙 Akşam Yemeği</option>
+                        <option value="@OgunTuru.Vejetaryen" selected="@(Model.Ogun == OgunTuru.Vejetaryen)">🥗 Vejetaryen Menü</option>
                     </select>
                 </div>
                 <div class="col-md-4 d-flex align-items-end">

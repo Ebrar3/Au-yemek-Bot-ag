@@ -122,9 +122,10 @@
                             <option value="">🔍 Otomatik Algıla (Excel Başlığından)</option>
                             <option value="@OgunTuru.Ogle">☀️ Öğle Yemeği</option>
                             <option value="@OgunTuru.Aksam">🌙 Akşam Yemeği</option>
+                            <option value="@OgunTuru.Vejetaryen">🥗 Vejetaryen Menü</option>
                         </select>
                         <div class="form-text">
-                            Boş bırakılırsa dosyanın üst başlığındaki <em>"ÖĞLE"</em> / <em>"AKŞAM"</em> ibaresine göre otomatik belirlenir.
+                            Boş bırakılırsa dosyanın üst başlığındaki <em>"ÖĞLE"</em> / <em>"AKŞAM"</em> / <em>"VEJETARYEN"</em> ibaresine göre otomatik belirlenir.
                         </div>
                     </div>
 
@@ -158,6 +159,27 @@
                 <div class="border-top pt-3">
                     <div class="small fw-semibold mb-2">📂 <code>OrnekMenuler/</code> Klasöründen Tek Tıkla Yükle:</div>
                     <div class="d-grid gap-2">
+                        <form method="post" asp-page-handler="OrnekYukle">
+                            <input type="hidden" name="dosyaAdi" value="Kasim_2026_Ogle_Menusu.xlsx" />
+                            <input type="hidden" name="ogun" value="@OgunTuru.Ogle" />
+                            <button type="submit" class="btn btn-warning text-dark btn-sm w-100 fw-semibold">
+                                ☀️ Kasım 2026 Öğle Menüsünü İçe Aktar
+                            </button>
+                        </form>
+                        <form method="post" asp-page-handler="OrnekYukle">
+                            <input type="hidden" name="dosyaAdi" value="Kasim_2026_Aksam_Menusu.xlsx" />
+                            <input type="hidden" name="ogun" value="@OgunTuru.Aksam" />
+                            <button type="submit" class="btn btn-info text-dark btn-sm w-100 fw-semibold">
+                                🌙 Kasım 2026 Akşam Menüsünü İçe Aktar
+                            </button>
+                        </form>
+                        <form method="post" asp-page-handler="OrnekYukle">
+                            <input type="hidden" name="dosyaAdi" value="Kasim_2026_Vejetaryen_Menusu.xlsx" />
+                            <input type="hidden" name="ogun" value="@OgunTuru.Vejetaryen" />
+                            <button type="submit" class="btn btn-success text-white btn-sm w-100 fw-semibold">
+                                🥗 Kasım 2026 Vejetaryen Menüsünü İçe Aktar
+                            </button>
+                        </form>
                         <form method="post" asp-page-handler="OrnekYukle">
                             <input type="hidden" name="dosyaAdi" value="Ekim_2026_Ogle_Menusu.xlsx" />
                             <input type="hidden" name="ogun" value="@OgunTuru.Ogle" />
@@ -234,9 +256,13 @@
                                     {
                                         <span class="badge bg-warning text-dark">☀️ Öğle</span>
                                     }
-                                    else
+                                    else if (kayit.Ogun == OgunTuru.Aksam)
                                     {
                                         <span class="badge bg-info text-dark">🌙 Akşam</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success text-white">🥗 Vejetaryen</span>
                                     }
                                 </td>
                                 <td class="small">@(kayit.YukleyenKullaniciId ?? "Sistem")</td>

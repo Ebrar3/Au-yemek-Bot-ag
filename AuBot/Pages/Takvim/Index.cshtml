@@ -59,9 +59,10 @@
         <div class="col-md-3">
             <label class="form-label small text-muted mb-1">Öğün Türü</label>
             <select asp-for="OgunFiltresi" class="form-select">
-                <option value="">Tümü (Öğle + Akşam)</option>
+                <option value="">Tümü (Öğle + Akşam + Vejetaryen)</option>
                 <option value="@OgunTuru.Ogle">☀️ Sadece Öğle Yemeği</option>
                 <option value="@OgunTuru.Aksam">🌙 Sadece Akşam Yemeği</option>
+                <option value="@OgunTuru.Vejetaryen">🥗 Sadece Vejetaryen Menü</option>
             </select>
         </div>
         <div class="col-md-3">
@@ -141,7 +142,7 @@
                                                    asp-route-SeciliTarih="@tarih.ToString("yyyy-MM-dd")"
                                                    asp-route-AktifOgun="@menu.Ogun"
                                                    class="text-decoration-none">
-                                                    @(menu.Ogun == OgunTuru.Ogle ? "☀️ Öğle" : "🌙 Akşam")
+                                                    @(menu.Ogun == OgunTuru.Ogle ? "☀️ Öğle" : menu.Ogun == OgunTuru.Aksam ? "🌙 Akşam" : "🥗 Vejetaryen")
                                                 </a>
                                                 @if (menu.ToplamKalori != null)
                                                 {

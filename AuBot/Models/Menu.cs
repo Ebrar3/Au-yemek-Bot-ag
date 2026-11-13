@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace AuBot.Models;
 
 /// <summary>
-/// Yemekhane öğün türleri (1: Öğle, 2: Akşam).
+/// Yemekhane öğün türleri (1: Öğle, 2: Akşam, 3: Vejetaryen).
 /// </summary>
 public enum OgunTuru
 {
@@ -11,7 +11,10 @@ public enum OgunTuru
     Ogle = 1,
 
     [Display(Name = "Akşam Yemeği")]
-    Aksam = 2
+    Aksam = 2,
+
+    [Display(Name = "Vejetaryen Menü")]
+    Vejetaryen = 3
 }
 
 /// <summary>

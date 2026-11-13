@@ -28,6 +28,7 @@ public class IndexModel : PageModel
 
     public Menu? OgleMenusu { get; set; }
     public Menu? AksamMenusu { get; set; }
+    public Menu? VejetaryenMenusu { get; set; }
 
     public List<DateOnly> YakinMenuTarihleri { get; set; } = new();
 
@@ -58,15 +59,20 @@ public class IndexModel : PageModel
 
         OgleMenusu = gununMenuleri.FirstOrDefault(m => m.Ogun == OgunTuru.Ogle);
         AksamMenusu = gununMenuleri.FirstOrDefault(m => m.Ogun == OgunTuru.Aksam);
+        VejetaryenMenusu = gununMenuleri.FirstOrDefault(m => m.Ogun == OgunTuru.Vejetaryen);
 
         // Eğer seçili öğünde menü yoksa ama diğer öğünde varsa onu aktif sekme yap
-        if (AktifOgun == OgunTuru.Aksam && AksamMenusu == null && OgleMenusu != null)
+        if (AktifOgun == OgunTuru.Aksam && AksamMenusu == null)
         {
-            AktifOgun = OgunTuru.Ogle;
+            AktifOgun = OgleMenusu != null ? OgunTuru.Ogle : VejetaryenMenusu != null ? OgunTuru.Vejetaryen : OgunTuru.Aksam;
         }
-        else if (AktifOgun == OgunTuru.Ogle && OgleMenusu == null && AksamMenusu != null)
+        else if (AktifOgun == OgunTuru.Ogle && OgleMenusu == null)
         {
-            AktifOgun = OgunTuru.Aksam;
+            AktifOgun = AksamMenusu != null ? OgunTuru.Aksam : VejetaryenMenusu != null ? OgunTuru.Vejetaryen : OgunTuru.Ogle;
+        }
+        else if (AktifOgun == OgunTuru.Vejetaryen && VejetaryenMenusu == null)
+        {
+            AktifOgun = OgleMenusu != null ? OgunTuru.Ogle : AksamMenusu != null ? OgunTuru.Aksam : OgunTuru.Vejetaryen;
         }
 
         YakinMenuTarihleri = await _context.Menuler

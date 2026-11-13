@@ -7,7 +7,10 @@
     var sonrakiGun = Model.GosterilenTarih.AddDays(1).ToString("yyyy-MM-dd");
     var bugunStr = DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd");
     var seciliStr = Model.GosterilenTarih.ToString("yyyy-MM-dd");
-    var ogleAktif = Model.AktifOgun != OgunTuru.Aksam;
+    var aktifOgun = Model.AktifOgun ?? OgunTuru.Ogle;
+    var ogleAktif = aktifOgun == OgunTuru.Ogle;
+    var aksamAktif = aktifOgun == OgunTuru.Aksam;
+    var vejetaryenAktif = aktifOgun == OgunTuru.Vejetaryen;
 }
 
 <!-- Üst Karşılama ve Hızlı Erişim Alanı -->
@@ -16,7 +19,7 @@
         <div class="col-lg-8">
             <h1 class="display-6 fw-bold text-primary mb-2">🍽️ AÜ Yemekhane Asistanı (Aü Bot)</h1>
             <p class="fs-6 text-muted mb-3 mb-lg-0">
-                Ankara Üniversitesi günlük öğle ve akşam yemekhane menüleri, kalori değerleri ve aylık yemek takvimi.
+                Ankara Üniversitesi günlük öğle, akşam ve vejetaryen yemekhane menüleri, kalori değerleri ve aylık yemek takvimi.
             </p>
         </div>
         <div class="col-lg-4 text-lg-end d-flex gap-2 justify-content-lg-end flex-wrap">
@@ -26,8 +29,8 @@
                class="btn btn-primary">
                 📅 Aylık Takvim
             </a>
+            <a asp-page="/Yonetim/Index" class="btn btn-outline-dark">⚙️ Yönetici Paneli</a>
             <a asp-page="/Yemekler/Index" class="btn btn-outline-secondary">🍲 Yemekler</a>
-            <a asp-page="/Kategoriler/Index" class="btn btn-outline-secondary">📂 Kategoriler</a>
         </div>
     </div>
 </div>
@@ -97,18 +100,34 @@
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link @(!ogleAktif ? "active fw-bold" : "")"
+                <button class="nav-link @(aksamAktif ? "active fw-bold" : "")"
                         id="aksam-tab"
                         data-bs-toggle="tab"
                         data-bs-target="#aksam-pane"
                         type="button"
                         role="tab"
                         aria-controls="aksam-pane"
-                        aria-selected="@(!ogleAktif ? "true" : "false")">
+                        aria-selected="@(aksamAktif ? "true" : "false")">
                     🌙 Akşam Yemeği
                     @if (Model.AksamMenusu?.ToplamKalori != null)
                     {
                         <span class="badge bg-info text-dark ms-1">@Model.AksamMenusu.ToplamKalori kkal</span>
+                    }
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(vejetaryenAktif ? "active fw-bold" : "")"
+                        id="vejetaryen-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#vejetaryen-pane"
+                        type="button"
+                        role="tab"
+                        aria-controls="vejetaryen-pane"
+                        aria-selected="@(vejetaryenAktif ? "true" : "false")">
+                    🥗 Vejetaryen Menü
+                    @if (Model.VejetaryenMenusu?.ToplamKalori != null)
+                    {
+                        <span class="badge bg-success text-white ms-1">@Model.VejetaryenMenusu.ToplamKalori kkal</span>
                     }
                 </button>
             </li>
@@ -172,7 +191,7 @@
             </div>
 
             <!-- AKŞAM YEMEĞİ SEKMESİ -->
-            <div class="tab-pane fade @(!ogleAktif ? "show active" : "")" id="aksam-pane" role="tabpanel" aria-labelledby="aksam-tab">
+            <div class="tab-pane fade @(aksamAktif ? "show active" : "")" id="aksam-pane" role="tabpanel" aria-labelledby="aksam-tab">
                 @if (Model.AksamMenusu == null)
                 {
                     <div class="text-center text-muted py-4">
@@ -202,6 +221,60 @@
 
                     <div class="row g-3">
                         @foreach (var satir in Model.AksamMenusu.MenuYemekleri.OrderBy(my => my.Sira))
+                        {
+                            <div class="col-md-6">
+                                <div class="border rounded p-3 h-100 d-flex justify-content-between align-items-center bg-light">
+                                    <div>
+                                        <div class="small text-muted fw-semibold">
+                                            @(satir.Yemek?.Kategori?.Ad ?? $"{satir.Sira}. Çeşit")
+                                        </div>
+                                        <a asp-page="/Yemekler/Detay"
+                                           asp-route-id="@satir.YemekId"
+                                           class="fs-5 fw-bold text-dark text-decoration-none">
+                                            @satir.Yemek?.Ad
+                                        </a>
+                                    </div>
+                                    <span class="badge bg-white text-dark border fs-6">
+                                        @(satir.Yemek?.Kalori != null ? $"{satir.Yemek.Kalori} kkal" : "-")
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- VEJETARYEN MENÜ SEKMESİ -->
+            <div class="tab-pane fade @(vejetaryenAktif ? "show active" : "")" id="vejetaryen-pane" role="tabpanel" aria-labelledby="vejetaryen-tab">
+                @if (Model.VejetaryenMenusu == null)
+                {
+                    <div class="text-center text-muted py-4">
+                        <p class="mb-2">Bu tarih için kayıtlı <strong>Vejetaryen Menü</strong> bulunamadı.</p>
+                        <a asp-page="/Takvim/Index" class="btn btn-sm btn-outline-primary">Aylık Takvime Göz At</a>
+                    </div>
+                }
+                else if (Model.VejetaryenMenusu.TatilMi)
+                {
+                    <div class="alert alert-warning mb-0">
+                        <strong>Resmi Tatil / Hizmet Dışı:</strong>
+                        @(string.IsNullOrWhiteSpace(Model.VejetaryenMenusu.Aciklama) ? "Bugün vejetaryen yemekhane hizmeti kapalıdır." : Model.VejetaryenMenusu.Aciklama)
+                    </div>
+                }
+                else
+                {
+                    var vejToplam = Model.VejetaryenMenusu.ToplamKalori
+                        ?? Model.VejetaryenMenusu.MenuYemekleri.Sum(my => my.Yemek?.Kalori ?? 0);
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">🥗 Vejetaryen Yemek Menüsü</h2>
+                        @if (vejToplam > 0)
+                        {
+                            <span class="badge bg-success fs-6">Toplam Enerji: @vejToplam kkal</span>
+                        }
+                    </div>
+
+                    <div class="row g-3">
+                        @foreach (var satir in Model.VejetaryenMenusu.MenuYemekleri.OrderBy(my => my.Sira))
                         {
                             <div class="col-md-6">
                                 <div class="border rounded p-3 h-100 d-flex justify-content-between align-items-center bg-light">
