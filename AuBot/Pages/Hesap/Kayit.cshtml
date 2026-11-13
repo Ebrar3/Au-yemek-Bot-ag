@@ -1,0 +1,49 @@
+@page
+@model AuBot.Pages.Hesap.KayitModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white fw-bold">
+                👤 Yeni Hesap Oluştur
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="GirisModeli.Email" class="form-label fw-semibold">E-posta Adresi</label>
+                        <input asp-for="GirisModeli.Email" class="form-control" placeholder="ornek@aubot.edu.tr" autocomplete="username" />
+                        <span asp-validation-for="GirisModeli.Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="GirisModeli.Sifre" class="form-label fw-semibold">Şifre</label>
+                        <input asp-for="GirisModeli.Sifre" class="form-control" placeholder="En az 6 karakter" autocomplete="new-password" />
+                        <span asp-validation-for="GirisModeli.Sifre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="GirisModeli.SifreTekrar" class="form-label fw-semibold">Şifre Tekrar</label>
+                        <input asp-for="GirisModeli.SifreTekrar" class="form-control" placeholder="Şifrenizi tekrar girin" autocomplete="new-password" />
+                        <span asp-validation-for="GirisModeli.SifreTekrar" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary fw-bold">Kayıt Ol</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center text-muted small">
+                Zaten hesabınız var mı? <a asp-page="/Hesap/Giris">Giriş Yap</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

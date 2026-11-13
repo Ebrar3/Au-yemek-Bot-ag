@@ -1,0 +1,60 @@
+@page
+@model AuBot.Pages.Hesap.GirisModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white fw-bold">
+                🔐 Hesabınıza Giriş Yapın
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="GirisModeli.Email" class="form-label fw-semibold">E-posta Adresi</label>
+                        <input asp-for="GirisModeli.Email" class="form-control" placeholder="ornek@aubot.edu.tr" autocomplete="username" />
+                        <span asp-validation-for="GirisModeli.Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="GirisModeli.Sifre" class="form-label fw-semibold">Şifre</label>
+                        <input asp-for="GirisModeli.Sifre" class="form-control" placeholder="Şifreniz" autocomplete="current-password" />
+                        <span asp-validation-for="GirisModeli.Sifre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="GirisModeli.BeniHatirla" class="form-check-input" />
+                        <label asp-for="GirisModeli.BeniHatirla" class="form-check-label">Beni Hatırla</label>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-dark fw-bold">Giriş Yap</button>
+                    </div>
+                </form>
+
+                @if (Model.DemoHesaplari.Any())
+                {
+                    <hr />
+                    <div class="small text-muted">
+                        <strong>Demo Hesapları:</strong>
+                        @foreach (var demo in Model.DemoHesaplari)
+                        {
+                            <div>@demo.Rol: <code>@demo.Email</code> / <code>@demo.Sifre</code></div>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="card-footer text-center text-muted small">
+                Hesabınız yok mu? <a asp-page="/Hesap/Kayit">Kayıt Ol</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

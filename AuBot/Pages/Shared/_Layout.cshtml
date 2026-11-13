@@ -35,12 +35,51 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark fw-semibold" asp-area="" asp-page="/Menuler/Index">📋 Menüler</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Menuler/ExcelYukle">📥 Excel Yükle</a>
-                        </li>
-                        <li class="nav-item ms-sm-auto">
-                            <a class="nav-link text-primary fw-bold" asp-area="" asp-page="/Yonetim/Index">⚙️ Yönetici Paneli</a>
-                        </li>
+                        @if (User.IsInRole("Yonetici"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Menuler/ExcelYukle">📥 Excel Yükle</a>
+                            </li>
+                            <li class="nav-item ms-sm-auto">
+                                <a class="nav-link text-primary fw-bold" asp-area="" asp-page="/Yonetim/Index">⚙️ Yönetici Paneli</a>
+                            </li>
+                        }
+                    </ul>
+
+                    @* Kullanıcı giriş/çıkış bölümü *@
+                    <ul class="navbar-nav ms-auto">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    👤 @User.Identity.Name
+                                    @if (User.IsInRole("Yonetici"))
+                                    {
+                                        <span class="badge bg-warning text-dark ms-1">Yönetici</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info text-dark ms-1">Öğrenci</span>
+                                    }
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <form method="post" asp-page="/Hesap/Cikis">
+                                            <button type="submit" class="dropdown-item text-danger">🚪 Çıkış Yap</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-page="/Hesap/Giris">🔐 Giriş Yap</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-page="/Hesap/Kayit">📝 Kayıt Ol</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

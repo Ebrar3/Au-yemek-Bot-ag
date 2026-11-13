@@ -1,13 +1,16 @@
 using AuBot.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuBot.Data;
 
 /// <summary>
 /// AÜ Yemekhane Asistanı (Aü Bot) Entity Framework Core veritabanı bağlamı.
-/// Tablo ilişkilerini ve başlangıç (seed) kategori/yemek verilerini yapılandırır.
+/// Tablo ilişkilerini, ASP.NET Core Identity tablolarını ve
+/// başlangıç (seed) kategori/yemek verilerini yapılandırır.
 /// </summary>
-public class AuBotDbContext : DbContext
+public class AuBotDbContext : IdentityDbContext<IdentityUser>
 {
     public AuBotDbContext(DbContextOptions<AuBotDbContext> options)
         : base(options)

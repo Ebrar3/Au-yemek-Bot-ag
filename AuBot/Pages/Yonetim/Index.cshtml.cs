@@ -1,6 +1,7 @@
 using System.Globalization;
 using AuBot.Data;
 using AuBot.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,10 @@ public record KategoriDagilimi(
     int? Sira,
     int YemekSayisi);
 
+/// <summary>
+/// Yönetici kontrol paneli. Yalnızca "Yonetici" rolüne sahip kullanıcılar erişebilir.
+/// </summary>
+[Authorize(Roles = "Yonetici")]
 public class IndexModel : PageModel
 {
     private static readonly CultureInfo TrKultur = new("tr-TR");
