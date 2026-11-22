@@ -36,7 +36,16 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuBotDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        db.Database.Migrate();
+    }
+    catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 2714 || ex.Number == 1913 || ex.Number == 3728)
+    {
+        // Yerel veritabanında eski şema/tablo çakışması varsa sıfırlayıp güncel migration'ları temiz şekilde uygula
+        db.Database.EnsureDeleted();
+        db.Database.Migrate();
+    }
 
     // --- Identity: Rolleri ve varsayılan kullanıcıları oluştur ---
     var rolYoneticisi = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
