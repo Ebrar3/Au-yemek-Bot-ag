@@ -4,7 +4,35 @@ using AuBot.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+static string? KlasorBul(string baslangicDizini, string hedefKlasor)
+{
+    var dizin = new DirectoryInfo(baslangicDizini);
+    for (var i = 0; i < 6 && dizin != null; i++, dizin = dizin.Parent)
+    {
+        var aday = Path.Combine(dizin.FullName, hedefKlasor);
+        if (Directory.Exists(aday))
+            return aday;
+    }
+    return null;
+}
+
+var contentRoot = Directory.GetCurrentDirectory();
+if (!Directory.Exists(Path.Combine(contentRoot, "wwwroot")))
+{
+    var bulunanWwwroot = KlasorBul(AppContext.BaseDirectory, "wwwroot")
+                         ?? KlasorBul(contentRoot, Path.Combine("AuBot", "wwwroot"));
+    if (bulunanWwwroot != null)
+    {
+        contentRoot = Directory.GetParent(bulunanWwwroot)!.FullName;
+    }
+}
+
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = contentRoot,
+    WebRootPath = Path.Combine(contentRoot, "wwwroot")
+});
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -93,7 +121,9 @@ using (var scope = app.Services.CreateScope())
 
     // OrnekMenuler Excel dosyalarını içe aktar (zaten yüklenmemişse)
     var excelServisi = scope.ServiceProvider.GetRequiredService<ExcelMenuServisi>();
-    var ornekKlasor = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "OrnekMenuler"));
+    var ornekKlasor = KlasorBul(app.Environment.ContentRootPath, "OrnekMenuler")
+                      ?? KlasorBul(AppContext.BaseDirectory, "OrnekMenuler")
+                      ?? Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "OrnekMenuler"));
 
     var baslangicDosyalari = new (string DosyaAdi, OgunTuru Ogun)[]
     {
@@ -130,6 +160,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseStaticFiles();
 app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();

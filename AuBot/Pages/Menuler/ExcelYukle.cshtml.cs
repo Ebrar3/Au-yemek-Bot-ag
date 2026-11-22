@@ -88,7 +88,7 @@ public class ExcelYukleModel : PageModel
     public async Task<IActionResult> OnPostOrnekYukleAsync(string dosyaAdi, OgunTuru ogun)
     {
         var temizAd = Path.GetFileName(dosyaAdi);
-        var ornekKlasor = Path.GetFullPath(Path.Combine(_env.ContentRootPath, "..", "OrnekMenuler"));
+        var ornekKlasor = OrnekKlasorBul(_env.ContentRootPath);
         var tamYol = Path.Combine(ornekKlasor, temizAd);
 
         if (!System.IO.File.Exists(tamYol))
@@ -134,6 +134,18 @@ public class ExcelYukleModel : PageModel
         if (ay < 1 || ay > 12 || yil < 2000 || yil > 2100)
             return $"{ay:00}/{yil}";
         return new DateTime(yil, ay, 1).ToString("MMMM yyyy", TrKultur);
+    }
+
+    private static string OrnekKlasorBul(string contentRoot)
+    {
+        var dizin = new DirectoryInfo(contentRoot);
+        for (var i = 0; i < 6 && dizin != null; i++, dizin = dizin.Parent)
+        {
+            var aday = Path.Combine(dizin.FullName, "OrnekMenuler");
+            if (Directory.Exists(aday))
+                return aday;
+        }
+        return Path.GetFullPath(Path.Combine(contentRoot, "..", "OrnekMenuler"));
     }
 
     private async Task GecmisiYukleAsync()

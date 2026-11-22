@@ -3,10 +3,11 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Ana Sayfa – Bugünün Menüsü";
-    var oncekiGun = Model.GosterilenTarih.AddDays(-1).ToString("yyyy-MM-dd");
-    var sonrakiGun = Model.GosterilenTarih.AddDays(1).ToString("yyyy-MM-dd");
+    var gosterilen = Model.GosterilenTarih == default ? DateOnly.FromDateTime(DateTime.Today) : Model.GosterilenTarih;
+    var oncekiGun = gosterilen.AddDays(-1).ToString("yyyy-MM-dd");
+    var sonrakiGun = gosterilen.AddDays(1).ToString("yyyy-MM-dd");
     var bugunStr = DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd");
-    var seciliStr = Model.GosterilenTarih.ToString("yyyy-MM-dd");
+    var seciliStr = gosterilen.ToString("yyyy-MM-dd");
     var aktifOgun = Model.AktifOgun ?? OgunTuru.Ogle;
     var ogleAktif = aktifOgun == OgunTuru.Ogle;
     var aksamAktif = aktifOgun == OgunTuru.Aksam;

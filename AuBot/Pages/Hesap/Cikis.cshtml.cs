@@ -16,6 +16,11 @@ public class CikisModel : PageModel
         _girisYoneticisi = girisYoneticisi;
     }
 
+    public IActionResult OnGet()
+    {
+        return RedirectToPage("/Index");
+    }
+
     public async Task<IActionResult> OnPostAsync()
     {
         await _girisYoneticisi.SignOutAsync();
